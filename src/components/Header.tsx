@@ -19,10 +19,13 @@ const Header = () => {
 
           {/* Desktop Navigation */}
           <nav className="hidden md:flex items-center gap-8">
+            <Link to="/" className="text-sm hover:text-primary transition-smooth">
+              Home
+            </Link>
             <Link to="/collections" className="text-sm hover:text-primary transition-smooth">
               Collections
             </Link>
-            <Link to="/bestsellers" className="text-sm hover:text-primary transition-smooth">
+            <Link to="/best-sellers" className="text-sm hover:text-primary transition-smooth">
               Best Sellers
             </Link>
             <Link to="/about" className="text-sm hover:text-primary transition-smooth">
@@ -66,6 +69,13 @@ const Header = () => {
         {mobileMenuOpen && (
           <nav className="md:hidden mt-4 pb-4 flex flex-col gap-4 border-t border-border/50 pt-4">
             <Link
+              to="/"
+              className="text-sm hover:text-primary transition-smooth"
+              onClick={() => setMobileMenuOpen(false)}
+            >
+              Home
+            </Link>
+            <Link
               to="/collections"
               className="text-sm hover:text-primary transition-smooth"
               onClick={() => setMobileMenuOpen(false)}
@@ -73,7 +83,7 @@ const Header = () => {
               Collections
             </Link>
             <Link
-              to="/bestsellers"
+              to="/best-sellers"
               className="text-sm hover:text-primary transition-smooth"
               onClick={() => setMobileMenuOpen(false)}
             >
