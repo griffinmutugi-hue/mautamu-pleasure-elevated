@@ -15,8 +15,8 @@ const HeroSection = () => {
       <div className="container mx-auto px-4 z-10 text-center">
         <div className="max-w-4xl mx-auto space-y-8">
           <h1 className="text-5xl md:text-7xl lg:text-8xl font-serif leading-tight">
-            Awaken Your{" "}
-            <span className="text-gradient">Desire</span>
+            The Pleasure You{" "}
+            <span className="text-gradient">Deserve</span>
           </h1>
           
           <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto">
@@ -32,7 +32,7 @@ const HeroSection = () => {
                 Explore Your Pleasure
               </Button>
             </Link>
-            <Link to="/bestsellers">
+            <Link to="/best-sellers">
               <Button 
                 size="lg" 
                 variant="outline" 
