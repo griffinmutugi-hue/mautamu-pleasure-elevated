@@ -27,7 +27,7 @@ const CollectionsGrid = () => {
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
           {collections.map((collection) => (
-            <Link key={collection.slug} to={`/collection/${collection.slug}`}>
+            <Link key={collection.slug} to={`/collections/${collection.slug}`}>
               <Card className="group bg-gradient-card border-border/50 hover:border-primary/50 transition-smooth overflow-hidden h-full">
                 <CardContent className="p-6 flex flex-col items-center text-center space-y-3">
                   <div className="text-5xl group-hover:scale-110 transition-smooth">
