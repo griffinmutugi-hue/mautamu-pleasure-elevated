@@ -1,7 +1,8 @@
 import { Link } from "react-router-dom";
-import { ShoppingCart, Heart, Menu, Search } from "lucide-react";
+import { ShoppingCart, Heart, Menu } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
+import SearchBar from "./SearchBar";
 
 const Header = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -38,9 +39,7 @@ const Header = () => {
 
           {/* Actions */}
           <div className="flex items-center gap-4">
-            <Button variant="ghost" size="icon" className="hover:text-primary transition-smooth">
-              <Search className="h-5 w-5" />
-            </Button>
+            <SearchBar />
             <Link to="/wishlist">
               <Button variant="ghost" size="icon" className="hover:text-primary transition-smooth">
                 <Heart className="h-5 w-5" />
