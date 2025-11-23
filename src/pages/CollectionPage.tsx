@@ -6,6 +6,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Star, ShoppingCart } from "lucide-react";
 import { getProductsByCategory } from "@/data/products";
 import { useState } from "react";
+import { useCart } from "@/contexts/CartContext";
 
 const collectionInfo: Record<string, { title: string; description: string }> = {
   vibrators: {
@@ -44,6 +45,7 @@ const collectionInfo: Record<string, { title: string; description: string }> = {
 
 const CollectionPage = () => {
   const { slug } = useParams<{ slug: string }>();
+  const { addToCart } = useCart();
   const [sortBy, setSortBy] = useState<"popularity" | "price-low" | "price-high" | "new">("popularity");
   
   const info = slug ? collectionInfo[slug] : null;
@@ -180,7 +182,16 @@ const CollectionPage = () => {
                             View Product
                           </Button>
                         </Link>
-                        <Button className="flex-1">
+                        <Button 
+                          className="flex-1"
+                          onClick={() => addToCart({
+                            id: Number(product.id),
+                            name: product.name,
+                            price: product.price,
+                            image: product.images[0],
+                            category: product.category,
+                          })}
+                        >
                           <ShoppingCart className="h-4 w-4 mr-2" />
                           Add to Cart
                         </Button>
