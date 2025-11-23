@@ -9,12 +9,12 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { Heart, ShoppingCart, Shield, Truck, Package, Star, Minus, Plus } from "lucide-react";
-import { useToast } from "@/hooks/use-toast";
 import { getProductById, getProductsByCategory } from "@/data/products";
+import { useCart } from "@/contexts/CartContext";
 
 const ProductDetail = () => {
   const { id } = useParams();
-  const { toast } = useToast();
+  const { addToCart } = useCart();
   const [quantity, setQuantity] = useState(1);
   const [isWishlisted, setIsWishlisted] = useState(false);
   
@@ -41,20 +41,17 @@ const ProductDetail = () => {
   }
 
   const handleAddToCart = () => {
-    toast({
-      title: "Added to Cart",
-      description: `${quantity} × ${product.name} added to your cart`,
-    });
+    addToCart({
+      id: Number(product.id),
+      name: product.name,
+      price: product.price,
+      image: product.images[0],
+      category: product.category,
+    }, quantity);
   };
 
   const handleToggleWishlist = () => {
     setIsWishlisted(!isWishlisted);
-    toast({
-      title: isWishlisted ? "Removed from Wishlist" : "Added to Wishlist",
-      description: isWishlisted 
-        ? `${product.name} removed from your wishlist`
-        : `${product.name} saved to your wishlist`,
-    });
   };
 
   const decreaseQuantity = () => {
