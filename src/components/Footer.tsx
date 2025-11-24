@@ -32,10 +32,10 @@ const Footer = () => {
               <Link to="/collections" className="text-muted-foreground hover:text-primary transition-smooth">
                 All Collections
               </Link>
-              <Link to="/bestsellers" className="text-muted-foreground hover:text-primary transition-smooth">
+              <Link to="/best-sellers" className="text-muted-foreground hover:text-primary transition-smooth">
                 Best Sellers
               </Link>
-              <Link to="/new" className="text-muted-foreground hover:text-primary transition-smooth">
+              <Link to="/new-arrivals" className="text-muted-foreground hover:text-primary transition-smooth">
                 New Arrivals
               </Link>
             </nav>
