@@ -14,6 +14,13 @@ import Cart from "./pages/Cart";
 import Checkout from "./pages/Checkout";
 import ProductDetail from "./pages/ProductDetail";
 import SearchResults from "./pages/SearchResults";
+import NewArrivals from "./pages/NewArrivals";
+import Shipping from "./pages/Shipping";
+import Returns from "./pages/Returns";
+import Contact from "./pages/Contact";
+import Privacy from "./pages/Privacy";
+import Terms from "./pages/Terms";
+import Disclaimer from "./pages/Disclaimer";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -30,8 +37,15 @@ const App = () => (
             <Route path="/collections" element={<Collections />} />
             <Route path="/collections/:slug" element={<CollectionPage />} />
             <Route path="/best-sellers" element={<BestSellers />} />
+            <Route path="/new-arrivals" element={<NewArrivals />} />
             <Route path="/about" element={<About />} />
             <Route path="/faq" element={<FAQ />} />
+            <Route path="/shipping" element={<Shipping />} />
+            <Route path="/returns" element={<Returns />} />
+            <Route path="/contact" element={<Contact />} />
+            <Route path="/privacy" element={<Privacy />} />
+            <Route path="/terms" element={<Terms />} />
+            <Route path="/disclaimer" element={<Disclaimer />} />
             <Route path="/cart" element={<Cart />} />
             <Route path="/checkout" element={<Checkout />} />
             <Route path="/product/:id" element={<ProductDetail />} />
