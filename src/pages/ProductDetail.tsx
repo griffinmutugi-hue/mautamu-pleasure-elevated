@@ -11,14 +11,16 @@ import { Badge } from "@/components/ui/badge";
 import { Heart, ShoppingCart, Shield, Truck, Package, Star, Minus, Plus } from "lucide-react";
 import { getProductById, getProductsByCategory } from "@/data/products";
 import { useCart } from "@/contexts/CartContext";
+import { useWishlist } from "@/contexts/WishlistContext";
 
 const ProductDetail = () => {
   const { id } = useParams();
   const { addToCart } = useCart();
+  const { addToWishlist, isInWishlist, removeFromWishlist } = useWishlist();
   const [quantity, setQuantity] = useState(1);
-  const [isWishlisted, setIsWishlisted] = useState(false);
   
   const product = id ? getProductById(id) : null;
+  const isWishlisted = product ? isInWishlist(Number(product.id)) : false;
   const relatedProducts = product ? getProductsByCategory(product.category).filter(p => p.id !== product.id).slice(0, 4) : [];
 
   if (!product) {
@@ -51,7 +53,19 @@ const ProductDetail = () => {
   };
 
   const handleToggleWishlist = () => {
-    setIsWishlisted(!isWishlisted);
+    if (!product) return;
+    
+    if (isWishlisted) {
+      removeFromWishlist(Number(product.id));
+    } else {
+      addToWishlist({
+        id: Number(product.id),
+        name: product.name,
+        price: product.price,
+        image: product.images[0],
+        category: product.category,
+      });
+    }
   };
 
   const decreaseQuantity = () => {

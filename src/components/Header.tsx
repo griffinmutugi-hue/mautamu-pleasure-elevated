@@ -4,10 +4,12 @@ import { Button } from "@/components/ui/button";
 import { useState } from "react";
 import SearchBar from "./SearchBar";
 import { useCart } from "@/contexts/CartContext";
+import { useWishlist } from "@/contexts/WishlistContext";
 
 const Header = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const { totalItems } = useCart();
+  const { totalItems: wishlistItems } = useWishlist();
 
   return (
     <header className="fixed top-0 left-0 right-0 z-50 border-b border-border/50 backdrop-blur-lg bg-background/80">
@@ -43,8 +45,13 @@ const Header = () => {
           <div className="flex items-center gap-4">
             <SearchBar />
             <Link to="/wishlist">
-              <Button variant="ghost" size="icon" className="hover:text-primary transition-smooth">
+              <Button variant="ghost" size="icon" className="hover:text-primary transition-smooth relative">
                 <Heart className="h-5 w-5" />
+                {wishlistItems > 0 && (
+                  <span className="absolute -top-1 -right-1 bg-primary text-primary-foreground text-xs rounded-full w-5 h-5 flex items-center justify-center font-semibold">
+                    {wishlistItems}
+                  </span>
+                )}
               </Button>
             </Link>
             <Link to="/cart">
