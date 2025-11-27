@@ -2,6 +2,8 @@ import { Link } from "react-router-dom";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Heart, ShoppingCart } from "lucide-react";
+import { useCart } from "@/contexts/CartContext";
+import { useWishlist } from "@/contexts/WishlistContext";
 
 const products = [
   {
@@ -43,6 +45,33 @@ const products = [
 ];
 
 const BestSellers = () => {
+  const { addToCart } = useCart();
+  const { addToWishlist, isInWishlist, removeFromWishlist } = useWishlist();
+
+  const handleAddToCart = (product: typeof products[0]) => {
+    addToCart({
+      id: product.id,
+      name: product.name,
+      price: product.price,
+      image: product.image,
+      category: product.category,
+    }, 1);
+  };
+
+  const handleToggleWishlist = (product: typeof products[0]) => {
+    if (isInWishlist(product.id)) {
+      removeFromWishlist(product.id);
+    } else {
+      addToWishlist({
+        id: product.id,
+        name: product.name,
+        price: product.price,
+        image: product.image,
+        category: product.category,
+      });
+    }
+  };
+
   return (
     <section className="py-20 bg-card/20">
       <div className="container mx-auto px-4">
@@ -75,8 +104,13 @@ const BestSellers = () => {
                       </Link>
                       <p className="text-xs text-muted-foreground">{product.category}</p>
                     </div>
-                    <Button variant="ghost" size="icon" className="hover:text-primary">
-                      <Heart className="h-4 w-4" />
+                    <Button 
+                      variant="ghost" 
+                      size="icon" 
+                      className={`hover:text-primary ${isInWishlist(product.id) ? "text-primary" : ""}`}
+                      onClick={() => handleToggleWishlist(product)}
+                    >
+                      <Heart className={`h-4 w-4 ${isInWishlist(product.id) ? "fill-current" : ""}`} />
                     </Button>
                   </div>
 
@@ -89,7 +123,11 @@ const BestSellers = () => {
                     <span className="text-lg font-semibold text-primary">
                       KES {product.price.toLocaleString()}
                     </span>
-                    <Button size="sm" className="bg-primary hover:bg-primary/90 rounded-full">
+                    <Button 
+                      size="sm" 
+                      className="bg-primary hover:bg-primary/90 rounded-full"
+                      onClick={() => handleAddToCart(product)}
+                    >
                       <ShoppingCart className="h-4 w-4 mr-1" />
                       Add
                     </Button>
@@ -101,7 +139,7 @@ const BestSellers = () => {
         </div>
 
         <div className="text-center mt-12">
-          <Link to="/bestsellers">
+          <Link to="/best-sellers">
             <Button variant="outline" size="lg" className="border-primary text-primary hover:bg-primary hover:text-primary-foreground rounded-full px-8">
               View All Best Sellers
             </Button>
