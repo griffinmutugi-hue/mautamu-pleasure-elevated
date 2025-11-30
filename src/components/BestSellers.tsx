@@ -86,32 +86,39 @@ const BestSellers = () => {
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
           {products.map((product) => (
-            <Card key={product.id} className="group bg-gradient-card border-border/50 hover:border-primary/50 transition-smooth overflow-hidden">
+            <Card key={product.id} className="group bg-gradient-card border-border/50 hover:border-primary/50 transition-smooth overflow-hidden shadow-soft hover-lift">
               <CardContent className="p-0">
-                <Link to={`/product/${product.id}`}>
-                  <div className="aspect-square bg-muted/30 flex items-center justify-center text-7xl group-hover:scale-105 transition-smooth">
-                    {product.image}
-                  </div>
-                </Link>
+                <div className="relative">
+                  <Link to={`/product/${product.id}`}>
+                    <div className="aspect-square bg-muted/30 flex items-center justify-center text-7xl group-hover:scale-110 transition-all duration-500">
+                      {product.image}
+                    </div>
+                  </Link>
+                  
+                  {/* Wishlist Heart Overlay */}
+                  <Button 
+                    variant="ghost" 
+                    size="icon" 
+                    className={`absolute top-3 right-3 h-10 w-10 rounded-full bg-background/80 backdrop-blur-sm hover:bg-background transition-all duration-300 ${
+                      isInWishlist(product.id) ? "text-primary scale-110" : "text-muted-foreground hover:text-primary"
+                    }`}
+                    onClick={(e) => {
+                      e.preventDefault();
+                      handleToggleWishlist(product);
+                    }}
+                  >
+                    <Heart className={`h-5 w-5 transition-all duration-300 ${isInWishlist(product.id) ? "fill-current animate-heart-pop" : ""}`} />
+                  </Button>
+                </div>
                 
                 <div className="p-4 space-y-3">
-                  <div className="flex justify-between items-start">
-                    <div className="flex-1">
-                      <Link to={`/product/${product.id}`}>
-                        <h3 className="font-semibold group-hover:text-primary transition-smooth">
-                          {product.name}
-                        </h3>
-                      </Link>
-                      <p className="text-xs text-muted-foreground">{product.category}</p>
-                    </div>
-                    <Button 
-                      variant="ghost" 
-                      size="icon" 
-                      className={`hover:text-primary ${isInWishlist(product.id) ? "text-primary" : ""}`}
-                      onClick={() => handleToggleWishlist(product)}
-                    >
-                      <Heart className={`h-4 w-4 ${isInWishlist(product.id) ? "fill-current" : ""}`} />
-                    </Button>
+                  <div>
+                    <Link to={`/product/${product.id}`}>
+                      <h3 className="font-serif text-lg group-hover:text-primary transition-smooth">
+                        {product.name}
+                      </h3>
+                    </Link>
+                    <p className="text-xs text-muted-foreground">{product.category}</p>
                   </div>
 
                   <div className="flex items-center gap-1 text-xs">
@@ -120,12 +127,12 @@ const BestSellers = () => {
                   </div>
 
                   <div className="flex justify-between items-center">
-                    <span className="text-lg font-semibold text-primary">
+                    <span className="text-xl font-serif text-primary">
                       KES {product.price.toLocaleString()}
                     </span>
                     <Button 
                       size="sm" 
-                      className="bg-primary hover:bg-primary/90 rounded-full"
+                      className="bg-primary hover:bg-primary/90 rounded-full shadow-soft hover:shadow-glow-button transition-all duration-300"
                       onClick={() => handleAddToCart(product)}
                     >
                       <ShoppingCart className="h-4 w-4 mr-1" />
@@ -140,8 +147,8 @@ const BestSellers = () => {
 
         <div className="text-center mt-12">
           <Link to="/best-sellers">
-            <Button variant="outline" size="lg" className="border-primary text-primary hover:bg-primary hover:text-primary-foreground rounded-full px-8">
-              View All Best Sellers
+            <Button variant="outline" size="lg" className="border-primary text-primary hover:bg-primary hover:text-primary-foreground rounded-full px-8 transition-all duration-300 hover:shadow-soft">
+              Discover All Best Sellers
             </Button>
           </Link>
         </div>
