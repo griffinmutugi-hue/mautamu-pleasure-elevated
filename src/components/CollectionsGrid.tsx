@@ -28,15 +28,15 @@ const CollectionsGrid = () => {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
           {collections.map((collection) => (
             <Link key={collection.slug} to={`/collections/${collection.slug}`}>
-              <Card className="group bg-gradient-card border-border/50 hover:border-primary/50 transition-smooth overflow-hidden h-full">
+              <Card className="group bg-gradient-card border-border/50 hover:border-primary/50 transition-smooth overflow-hidden h-full shadow-soft hover-lift">
                 <CardContent className="p-6 flex flex-col items-center text-center space-y-3">
-                  <div className="text-5xl group-hover:scale-110 transition-smooth">
+                  <div className="text-5xl group-hover:scale-125 transition-all duration-500">
                     {collection.emoji}
                   </div>
                   <h3 className="font-serif text-xl text-foreground group-hover:text-primary transition-smooth">
                     {collection.name}
                   </h3>
-                  <p className="text-sm text-muted-foreground">
+                  <p className="text-sm text-muted-foreground group-hover:text-foreground/80 transition-smooth">
                     {collection.description}
                   </p>
                 </CardContent>

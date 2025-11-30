@@ -167,7 +167,7 @@ const ProductDetail = () => {
                 <div className="flex gap-4">
                   <Button
                     onClick={handleAddToCart}
-                    className="flex-1 bg-primary hover:bg-primary/90 rounded-full py-6"
+                    className="flex-1 bg-primary hover:bg-primary/90 rounded-full py-6 shadow-glow-button hover:scale-105 transition-all duration-300"
                   >
                     <ShoppingCart className="h-5 w-5 mr-2" />
                     Add to Cart
@@ -176,28 +176,28 @@ const ProductDetail = () => {
                     onClick={handleToggleWishlist}
                     variant="outline"
                     size="icon"
-                    className={`h-14 w-14 rounded-full ${
-                      isWishlisted ? "text-primary border-primary" : ""
+                    className={`h-14 w-14 rounded-full transition-all duration-300 hover:shadow-soft ${
+                      isWishlisted ? "text-primary border-primary scale-110" : ""
                     }`}
                   >
-                    <Heart className={`h-6 w-6 ${isWishlisted ? "fill-current" : ""}`} />
+                    <Heart className={`h-6 w-6 transition-transform ${isWishlisted ? "fill-current animate-heart-pop" : ""}`} />
                   </Button>
                 </div>
               </div>
 
               {/* Trust Badges */}
               <div className="grid grid-cols-3 gap-4 pt-6 border-t border-border/50">
-                <div className="text-center space-y-2">
-                  <Package className="h-6 w-6 mx-auto text-primary" />
-                  <p className="text-xs text-muted-foreground">Discreet<br/>Packaging</p>
+                <div className="text-center space-y-2 group">
+                  <Package className="h-7 w-7 mx-auto text-primary group-hover:scale-110 transition-transform" />
+                  <p className="text-xs text-muted-foreground font-medium">Discreet<br/>Packaging</p>
                 </div>
-                <div className="text-center space-y-2">
-                  <Truck className="h-6 w-6 mx-auto text-primary" />
-                  <p className="text-xs text-muted-foreground">Fast<br/>Delivery</p>
+                <div className="text-center space-y-2 group">
+                  <Truck className="h-7 w-7 mx-auto text-primary group-hover:scale-110 transition-transform" />
+                  <p className="text-xs text-muted-foreground font-medium">Fast<br/>Delivery</p>
                 </div>
-                <div className="text-center space-y-2">
-                  <Shield className="h-6 w-6 mx-auto text-primary" />
-                  <p className="text-xs text-muted-foreground">Secure<br/>Payment</p>
+                <div className="text-center space-y-2 group">
+                  <Shield className="h-7 w-7 mx-auto text-primary group-hover:scale-110 transition-transform" />
+                  <p className="text-xs text-muted-foreground font-medium">Secure<br/>Payment</p>
                 </div>
               </div>
             </div>
@@ -263,13 +263,41 @@ const ProductDetail = () => {
               </h2>
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
                 {relatedProducts.map((relatedProduct) => (
-                  <Card key={relatedProduct.id} className="group bg-gradient-card border-border/50 hover:border-primary/50 transition-smooth overflow-hidden">
+                  <Card key={relatedProduct.id} className="group bg-gradient-card border-border/50 hover:border-primary/50 transition-smooth overflow-hidden shadow-soft hover-lift">
                     <CardContent className="p-0">
-                      <Link to={`/product/${relatedProduct.id}`}>
-                        <div className="aspect-square bg-muted/30 flex items-center justify-center text-6xl cursor-pointer group-hover:scale-105 transition-smooth">
-                          {relatedProduct.images[0]}
-                        </div>
-                      </Link>
+                      <div className="relative">
+                        <Link to={`/product/${relatedProduct.id}`}>
+                          <div className="aspect-square bg-muted/30 flex items-center justify-center text-6xl cursor-pointer group-hover:scale-110 transition-all duration-500">
+                            {relatedProduct.images[0]}
+                          </div>
+                        </Link>
+                        
+                        {/* Wishlist Heart Overlay */}
+                        <Button 
+                          variant="ghost" 
+                          size="icon" 
+                          className={`absolute top-3 right-3 h-10 w-10 rounded-full bg-background/80 backdrop-blur-sm hover:bg-background transition-all duration-300 ${
+                            isInWishlist(Number(relatedProduct.id)) ? "text-primary scale-110" : "text-muted-foreground hover:text-primary"
+                          }`}
+                          onClick={(e) => {
+                            e.preventDefault();
+                            if (isInWishlist(Number(relatedProduct.id))) {
+                              removeFromWishlist(Number(relatedProduct.id));
+                            } else {
+                              addToWishlist({
+                                id: Number(relatedProduct.id),
+                                name: relatedProduct.name,
+                                price: relatedProduct.price,
+                                image: relatedProduct.images[0],
+                                category: relatedProduct.category,
+                              });
+                            }
+                          }}
+                        >
+                          <Heart className={`h-5 w-5 transition-all duration-300 ${isInWishlist(Number(relatedProduct.id)) ? "fill-current animate-heart-pop" : ""}`} />
+                        </Button>
+                      </div>
+                      
                       <div className="p-4 space-y-2">
                         <Link to={`/product/${relatedProduct.id}`}>
                           <h3 className="font-serif text-lg text-foreground group-hover:text-primary transition-smooth">
