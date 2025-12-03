@@ -108,10 +108,10 @@ Please confirm availability.`;
 
   const onSubmit = (data: CheckoutFormData) => {
     const message = encodeURIComponent(generateWhatsAppMessage(data));
-    const whatsappUrl = `https://wa.me/${WHATSAPP_NUMBER}?text=${message}`;
+    const whatsappUrl = `https://wa.me/254794043792?text=${message}`;
 
     // Opening immediately on user action prevents popup blocking
-    window.open(whatsappUrl, "_blank", "noopener,noreferrer");
+    window.open(whatsappUrl, "_blank");
   };
 
   return (
