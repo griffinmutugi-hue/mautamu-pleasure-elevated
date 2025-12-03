@@ -4,42 +4,61 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { useCart } from "@/contexts/CartContext";
 import { useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { toast } from "@/hooks/use-toast";
-import { useState } from "react";
+import { useEffect } from "react";
+import { MessageCircle } from "lucide-react";
+
+const WHATSAPP_NUMBER = "254700000000"; // Replace with actual WhatsApp number
 
 const checkoutSchema = z.object({
   fullName: z.string().trim().min(2, "Name must be at least 2 characters").max(100, "Name must be less than 100 characters"),
-  phone: z.string().regex(/^(07|2547)\d{8}$/, "Please enter a valid Kenyan phone number (07XXXXXXXX or 2547XXXXXXXX)"),
+  phone: z.string().trim().min(10, "Please enter a valid phone number").max(15, "Phone number is too long"),
   location: z.string().trim().min(3, "Location must be at least 3 characters").max(100, "Location must be less than 100 characters"),
-  address: z.string().trim().min(10, "Address must be at least 10 characters").max(200, "Address must be less than 200 characters"),
-  mpesaPhone: z.string().optional(),
-  cardNumber: z.string().optional(),
-  expiry: z.string().optional(),
-  cvv: z.string().optional(),
+  address: z.string().trim().min(5, "Address must be at least 5 characters").max(200, "Address must be less than 200 characters"),
 });
 
 type CheckoutFormData = z.infer<typeof checkoutSchema>;
 
+const CHECKOUT_STORAGE_KEY = "mautamu_checkout_details";
+
 const Checkout = () => {
   const { items, subtotal } = useCart();
   const navigate = useNavigate();
-  const [paymentMethod, setPaymentMethod] = useState("mpesa");
-  const [isProcessing, setIsProcessing] = useState(false);
+
+  // Load saved checkout details from localStorage
+  const getSavedDetails = (): Partial<CheckoutFormData> => {
+    try {
+      const saved = localStorage.getItem(CHECKOUT_STORAGE_KEY);
+      return saved ? JSON.parse(saved) : {};
+    } catch {
+      return {};
+    }
+  };
 
   const {
     register,
     handleSubmit,
+    watch,
     formState: { errors, isValid },
   } = useForm<CheckoutFormData>({
     resolver: zodResolver(checkoutSchema),
     mode: "onChange",
+    defaultValues: getSavedDetails(),
   });
+
+  // Watch all form fields for localStorage persistence
+  const formValues = watch();
+
+  // Save form details to localStorage whenever they change
+  useEffect(() => {
+    if (formValues.fullName || formValues.phone || formValues.location || formValues.address) {
+      localStorage.setItem(CHECKOUT_STORAGE_KEY, JSON.stringify(formValues));
+    }
+  }, [formValues]);
 
   // Redirect if cart is empty
   if (items.length === 0) {
@@ -52,7 +71,7 @@ const Checkout = () => {
               <span className="text-gradient">Your cart is empty</span>
             </h1>
             <p className="text-muted-foreground mb-8">
-              Add some pleasure to your cart first.
+              Add some items to your cart first.
             </p>
             <Button onClick={() => navigate("/collections")} className="rounded-full px-8 py-6 text-lg">
               Explore Collections
@@ -67,24 +86,32 @@ const Checkout = () => {
   const shipping = 500;
   const total = subtotal + shipping;
 
+  const generateWhatsAppMessage = (data: CheckoutFormData): string => {
+    const cartItems = items
+      .map((item) => `- ${item.name} (Qty: ${item.quantity}) — KES ${(item.price * item.quantity).toLocaleString()}`)
+      .join("\n");
+
+    const message = `Hi, I'd like to place an order.
+
+Name: ${data.fullName}
+Phone: ${data.phone}
+Delivery Location: ${data.location}
+Address: ${data.address}
+
+My Cart:
+${cartItems}
+
+Total: KES ${total.toLocaleString()}
+
+Please confirm availability.`;
+
+    return encodeURIComponent(message);
+  };
+
   const onSubmit = (data: CheckoutFormData) => {
-    setIsProcessing(true);
-    
-    // Simulate payment processing
-    setTimeout(() => {
-      setIsProcessing(false);
-      if (paymentMethod === "mpesa") {
-        toast({
-          title: "STK Push Sent",
-          description: `Payment processing. You'll receive an M-Pesa prompt on ${data.phone} shortly.`,
-        });
-      } else {
-        toast({
-          title: "Payment Processing",
-          description: "Please wait while we process your card payment.",
-        });
-      }
-    }, 1500);
+    const message = generateWhatsAppMessage(data);
+    const whatsappUrl = `https://wa.me/${WHATSAPP_NUMBER}?text=${message}`;
+    window.open(whatsappUrl, "_blank");
   };
 
   return (
@@ -96,20 +123,13 @@ const Checkout = () => {
             <span className="text-gradient">Checkout</span>
           </h1>
 
-          <div className="mb-6 p-4 bg-muted/30 border border-border/50 rounded-lg">
-            <p className="text-sm text-muted-foreground">
-              ⚠️ Payment processing requires backend integration. This is currently a UI demonstration.
-            </p>
-          </div>
-
           <form onSubmit={handleSubmit(onSubmit)}>
             <div className="grid lg:grid-cols-2 gap-8">
-              {/* Checkout Form */}
+              {/* Customer Details Form */}
               <div className="space-y-6">
-                {/* Contact Information */}
                 <Card className="bg-gradient-card border-border/50">
                   <CardContent className="p-6 space-y-4">
-                    <h2 className="font-serif text-xl">Contact Information</h2>
+                    <h2 className="font-serif text-xl">Customer Details</h2>
                     
                     <div className="space-y-2">
                       <Label htmlFor="fullName">Full Name *</Label>
@@ -131,27 +151,20 @@ const Checkout = () => {
                         type="tel" 
                         {...register("phone")}
                         className={errors.phone ? "border-destructive" : ""}
-                        placeholder="07XX XXX XXX or 2547XX XXX XXX" 
+                        placeholder="Your phone number" 
                       />
                       {errors.phone && (
                         <p className="text-xs text-destructive">{errors.phone.message}</p>
                       )}
                     </div>
-                  </CardContent>
-                </Card>
-
-                {/* Delivery Address */}
-                <Card className="bg-gradient-card border-border/50">
-                  <CardContent className="p-6 space-y-4">
-                    <h2 className="font-serif text-xl">Delivery Address</h2>
 
                     <div className="space-y-2">
-                      <Label htmlFor="location">Delivery Location (Area/Estate) *</Label>
+                      <Label htmlFor="location">Delivery Location (Town/Area) *</Label>
                       <Input 
                         id="location"
                         {...register("location")}
                         className={errors.location ? "border-destructive" : ""}
-                        placeholder="e.g., Westlands, Karen, etc."
+                        placeholder="e.g., Westlands, Karen, Mombasa"
                       />
                       {errors.location && (
                         <p className="text-xs text-destructive">{errors.location.message}</p>
@@ -159,7 +172,7 @@ const Checkout = () => {
                     </div>
 
                     <div className="space-y-2">
-                      <Label htmlFor="address">Full Delivery Address *</Label>
+                      <Label htmlFor="address">Address / Exact Drop-off *</Label>
                       <Input 
                         id="address"
                         {...register("address")}
@@ -170,76 +183,6 @@ const Checkout = () => {
                         <p className="text-xs text-destructive">{errors.address.message}</p>
                       )}
                     </div>
-                  </CardContent>
-                </Card>
-
-                {/* Payment Method */}
-                <Card className="bg-gradient-card border-border/50">
-                  <CardContent className="p-6 space-y-4">
-                    <h2 className="font-serif text-xl">Payment Method</h2>
-                    
-                    <RadioGroup value={paymentMethod} onValueChange={setPaymentMethod}>
-                      <div className="flex items-center space-x-2 p-4 border border-border/50 rounded-lg hover:border-primary/50 transition-smooth">
-                        <RadioGroupItem value="mpesa" id="mpesa" />
-                        <Label htmlFor="mpesa" className="flex-1 cursor-pointer">
-                          <span className="font-semibold">M-Pesa</span>
-                          <p className="text-sm text-muted-foreground">Pay with Lipa na M-Pesa</p>
-                        </Label>
-                      </div>
-                      
-                      <div className="flex items-center space-x-2 p-4 border border-border/50 rounded-lg hover:border-primary/50 transition-smooth">
-                        <RadioGroupItem value="card" id="card" />
-                        <Label htmlFor="card" className="flex-1 cursor-pointer">
-                          <span className="font-semibold">Card Payment</span>
-                          <p className="text-sm text-muted-foreground">Visa or Mastercard</p>
-                        </Label>
-                      </div>
-                    </RadioGroup>
-
-                    {paymentMethod === "mpesa" && (
-                      <div className="space-y-2 pt-4">
-                        <Label htmlFor="mpesaPhone">M-Pesa Phone Number</Label>
-                        <Input 
-                          id="mpesaPhone" 
-                          type="tel" 
-                          {...register("mpesaPhone")}
-                          placeholder="254XXXXXXXXX" 
-                        />
-                        <p className="text-xs text-muted-foreground">Leave blank to use contact number above</p>
-                      </div>
-                    )}
-
-                    {paymentMethod === "card" && (
-                      <div className="space-y-4 pt-4">
-                        <div className="space-y-2">
-                          <Label htmlFor="cardNumber">Card Number</Label>
-                          <Input 
-                            id="cardNumber" 
-                            {...register("cardNumber")}
-                            placeholder="1234 5678 9012 3456" 
-                          />
-                        </div>
-                        <div className="grid grid-cols-2 gap-4">
-                          <div className="space-y-2">
-                            <Label htmlFor="expiry">Expiry Date</Label>
-                            <Input 
-                              id="expiry" 
-                              {...register("expiry")}
-                              placeholder="MM/YY" 
-                            />
-                          </div>
-                          <div className="space-y-2">
-                            <Label htmlFor="cvv">CVV</Label>
-                            <Input 
-                              id="cvv" 
-                              {...register("cvv")}
-                              placeholder="123" 
-                              maxLength={3}
-                            />
-                          </div>
-                        </div>
-                      </div>
-                    )}
                   </CardContent>
                 </Card>
               </div>
@@ -287,18 +230,19 @@ const Checkout = () => {
 
                     <Button 
                       type="submit"
-                      disabled={!isValid || isProcessing}
-                      className="w-full bg-primary hover:bg-primary/90 rounded-full py-6 text-lg"
+                      disabled={!isValid}
+                      className="w-full bg-[#25D366] hover:bg-[#128C7E] text-white rounded-full py-6 text-lg flex items-center justify-center gap-2"
                     >
-                      {isProcessing ? "Processing..." : "Complete Order"}
+                      <MessageCircle className="w-5 h-5" />
+                      Order on WhatsApp
                     </Button>
 
                     <div className="space-y-2 pt-4">
                       <p className="text-xs text-center text-muted-foreground">
-                        🔒 Secure encrypted payment
+                        📦 Discreet packaging guaranteed
                       </p>
                       <p className="text-xs text-center text-muted-foreground">
-                        📦 Discreet packaging guaranteed
+                        🚚 Fast delivery across Kenya
                       </p>
                     </div>
                   </CardContent>
