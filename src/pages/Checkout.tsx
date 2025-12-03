@@ -12,7 +12,7 @@ import { z } from "zod";
 import { useEffect } from "react";
 import { MessageCircle } from "lucide-react";
 
-const WHATSAPP_NUMBER = "254700000000"; // Replace with actual WhatsApp number
+const WHATSAPP_NUMBER = "254794043792"; // Replace with actual WhatsApp number
 
 const checkoutSchema = z.object({
   fullName: z.string().trim().min(2, "Name must be at least 2 characters").max(100, "Name must be less than 100 characters"),
