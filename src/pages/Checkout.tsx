@@ -111,7 +111,8 @@ Please confirm availability.`;
   const onSubmit = (data: CheckoutFormData) => {
     const message = generateWhatsAppMessage(data);
     const whatsappUrl = `https://wa.me/${WHATSAPP_NUMBER}?text=${message}`;
-    window.open(whatsappUrl, "_blank");
+    // Use location.href for reliable redirect (avoids popup blockers)
+    window.location.href = whatsappUrl;
   };
 
   return (
