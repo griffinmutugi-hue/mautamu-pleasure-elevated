@@ -91,7 +91,7 @@ const Checkout = () => {
       .map((item) => `- ${item.name} (Qty: ${item.quantity}) — KES ${(item.price * item.quantity).toLocaleString()}`)
       .join("\n");
 
-    const message = `Hi, I'd like to place an order.
+    return `Hi, I'd like to place an order.
 
 Name: ${data.fullName}
 Phone: ${data.phone}
@@ -104,15 +104,14 @@ ${cartItems}
 Total: KES ${total.toLocaleString()}
 
 Please confirm availability.`;
-
-    return encodeURIComponent(message);
   };
 
   const onSubmit = (data: CheckoutFormData) => {
-    const message = generateWhatsAppMessage(data);
-    // Use api.whatsapp.com for better compatibility
-    const whatsappUrl = `https://api.whatsapp.com/send?phone=${WHATSAPP_NUMBER}&text=${message}`;
-    window.location.href = whatsappUrl;
+    const message = encodeURIComponent(generateWhatsAppMessage(data));
+    const whatsappUrl = `https://wa.me/${WHATSAPP_NUMBER}?text=${message}`;
+
+    // Opening immediately on user action prevents popup blocking
+    window.open(whatsappUrl, "_blank", "noopener,noreferrer");
   };
 
   return (
