@@ -72,11 +72,13 @@ const loadCart = (): CartItem[] => {
   }
 };
 
-// Save cart to localStorage atomically
+// Save cart to localStorage atomically - ALWAYS merge before saving
 const saveCart = (items: CartItem[]): boolean => {
   try {
+    // Merge duplicates before every save to prevent duplicates from ever existing
+    const mergedItems = mergeDuplicates(items);
     const cartData: CartData = {
-      items,
+      items: mergedItems,
       updatedAt: new Date().toISOString()
     };
     localStorage.setItem(STORAGE_KEY, JSON.stringify(cartData));
