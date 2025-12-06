@@ -7,7 +7,7 @@ import { useWishlist } from "@/contexts/WishlistContext";
 
 const products = [
   {
-    id: 1,
+    id: "best-001",
     name: "Rose Blossom",
     price: 3500,
     category: "Vibrators",
@@ -16,7 +16,7 @@ const products = [
     reviews: 127
   },
   {
-    id: 2,
+    id: "best-002",
     name: "Velvet Touch",
     price: 4200,
     category: "Dildos",
@@ -25,7 +25,7 @@ const products = [
     reviews: 89
   },
   {
-    id: 3,
+    id: "best-003",
     name: "Whisper Vibrator",
     price: 3800,
     category: "Vibrators",
@@ -34,7 +34,7 @@ const products = [
     reviews: 156
   },
   {
-    id: 4,
+    id: "best-004",
     name: "Luxury Silk Set",
     price: 6500,
     category: "Bondage",
