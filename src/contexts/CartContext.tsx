@@ -97,7 +97,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
     saveCart(items);
   }, [items]);
 
-  // Atomic update helper with lock
+  // Atomic update helper with lock - ALWAYS merges before saving and setting state
   const atomicUpdate = useCallback((
     updater: (currentItems: CartItem[]) => CartItem[],
     successMessage?: string,
@@ -109,13 +109,16 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
     try {
       // Read current state from localStorage for true atomicity
       const currentItems = loadCart();
-      const newItems = updater(currentItems);
+      // Apply updater, then ALWAYS merge to ensure one line per product
+      const updatedItems = updater(currentItems);
+      const mergedItems = mergeDuplicates(updatedItems);
       
-      // Persist immediately
-      const saved = saveCart(newItems);
+      // Persist merged items immediately
+      const saved = saveCart(mergedItems);
       
       if (saved) {
-        setItems(newItems);
+        // Set state with MERGED items - UI always renders from merged state
+        setItems(mergedItems);
         if (successMessage) {
           toast({
             title: successMessage,
