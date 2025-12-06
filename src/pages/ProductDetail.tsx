@@ -20,7 +20,7 @@ const ProductDetail = () => {
   const [quantity, setQuantity] = useState(1);
   
   const product = id ? getProductById(id) : null;
-  const isWishlisted = product ? isInWishlist(Number(product.id)) : false;
+  const isWishlisted = product ? isInWishlist(product.id) : false;
   const relatedProducts = product ? getProductsByCategory(product.category).filter(p => p.id !== product.id).slice(0, 4) : [];
 
   if (!product) {
@@ -44,7 +44,7 @@ const ProductDetail = () => {
 
   const handleAddToCart = () => {
     addToCart({
-      id: Number(product.id),
+      id: product.id,
       name: product.name,
       price: product.price,
       image: product.images[0],
@@ -56,10 +56,10 @@ const ProductDetail = () => {
     if (!product) return;
     
     if (isWishlisted) {
-      removeFromWishlist(Number(product.id));
+      removeFromWishlist(product.id);
     } else {
       addToWishlist({
-        id: Number(product.id),
+        id: product.id,
         name: product.name,
         price: product.price,
         image: product.images[0],
@@ -277,15 +277,15 @@ const ProductDetail = () => {
                           variant="ghost" 
                           size="icon" 
                           className={`absolute top-3 right-3 h-10 w-10 rounded-full bg-background/80 backdrop-blur-sm hover:bg-background transition-all duration-300 ${
-                            isInWishlist(Number(relatedProduct.id)) ? "text-primary scale-110" : "text-muted-foreground hover:text-primary"
+                            isInWishlist(relatedProduct.id) ? "text-primary scale-110" : "text-muted-foreground hover:text-primary"
                           }`}
                           onClick={(e) => {
                             e.preventDefault();
-                            if (isInWishlist(Number(relatedProduct.id))) {
-                              removeFromWishlist(Number(relatedProduct.id));
+                            if (isInWishlist(relatedProduct.id)) {
+                              removeFromWishlist(relatedProduct.id);
                             } else {
                               addToWishlist({
-                                id: Number(relatedProduct.id),
+                                id: relatedProduct.id,
                                 name: relatedProduct.name,
                                 price: relatedProduct.price,
                                 image: relatedProduct.images[0],
@@ -294,7 +294,7 @@ const ProductDetail = () => {
                             }
                           }}
                         >
-                          <Heart className={`h-5 w-5 transition-all duration-300 ${isInWishlist(Number(relatedProduct.id)) ? "fill-current animate-heart-pop" : ""}`} />
+                          <Heart className={`h-5 w-5 transition-all duration-300 ${isInWishlist(relatedProduct.id) ? "fill-current animate-heart-pop" : ""}`} />
                         </Button>
                       </div>
                       

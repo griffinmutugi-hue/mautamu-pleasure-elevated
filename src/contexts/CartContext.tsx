@@ -2,7 +2,7 @@ import React, { createContext, useContext, useState, useEffect, useCallback, use
 import { toast } from '@/hooks/use-toast';
 
 export interface CartItem {
-  id: number;
+  id: string;
   name: string;
   price: number;
   image: string;
@@ -18,8 +18,8 @@ interface CartData {
 interface CartContextType {
   items: CartItem[];
   addToCart: (product: Omit<CartItem, 'quantity'>, quantity?: number) => void;
-  removeFromCart: (id: number) => void;
-  updateQuantity: (id: number, quantity: number) => void;
+  removeFromCart: (id: string) => void;
+  updateQuantity: (id: string, quantity: number) => void;
   clearCart: () => void;
   totalItems: number;
   subtotal: number;
@@ -30,7 +30,7 @@ const CartContext = createContext<CartContextType | undefined>(undefined);
 
 // Merge duplicate items by id - sum quantities
 const mergeDuplicates = (items: CartItem[]): CartItem[] => {
-  const merged = new Map<number, CartItem>();
+  const merged = new Map<string, CartItem>();
   
   for (const item of items) {
     const existing = merged.get(item.id);
@@ -162,14 +162,14 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
     );
   }, [atomicUpdate]);
 
-  const removeFromCart = useCallback((id: number) => {
+  const removeFromCart = useCallback((id: string) => {
     atomicUpdate(
       (currentItems) => currentItems.filter(item => item.id !== id),
       "Removed from cart"
     );
   }, [atomicUpdate]);
 
-  const updateQuantity = useCallback((id: number, quantity: number) => {
+  const updateQuantity = useCallback((id: string, quantity: number) => {
     if (quantity <= 0) {
       removeFromCart(id);
       return;

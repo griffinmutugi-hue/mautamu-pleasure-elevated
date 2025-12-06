@@ -185,7 +185,7 @@ const CollectionPage = () => {
                         <Button 
                           className="flex-1"
                           onClick={() => addToCart({
-                            id: Number(product.id),
+                            id: product.id,
                             name: product.name,
                             price: product.price,
                             image: product.images[0],

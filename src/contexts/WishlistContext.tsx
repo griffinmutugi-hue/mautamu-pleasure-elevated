@@ -2,7 +2,7 @@ import React, { createContext, useContext, useState, useEffect } from 'react';
 import { toast } from '@/hooks/use-toast';
 
 export interface WishlistItem {
-  id: number;
+  id: string;
   name: string;
   price: number;
   image: string;
@@ -12,8 +12,8 @@ export interface WishlistItem {
 interface WishlistContextType {
   items: WishlistItem[];
   addToWishlist: (product: WishlistItem) => void;
-  removeFromWishlist: (id: number) => void;
-  isInWishlist: (id: number) => boolean;
+  removeFromWishlist: (id: string) => void;
+  isInWishlist: (id: string) => boolean;
   clearWishlist: () => void;
   totalItems: number;
 }
@@ -52,7 +52,7 @@ export const WishlistProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     });
   };
 
-  const removeFromWishlist = (id: number) => {
+  const removeFromWishlist = (id: string) => {
     setItems((currentItems) => {
       const item = currentItems.find(i => i.id === id);
       if (item) {
@@ -65,7 +65,7 @@ export const WishlistProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     });
   };
 
-  const isInWishlist = (id: number) => {
+  const isInWishlist = (id: string) => {
     return items.some(item => item.id === id);
   };
 
