@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { z } from 'zod';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
@@ -23,7 +23,8 @@ const signupSchema = z.object({
 
 const Auth = () => {
   const navigate = useNavigate();
-  const { user, signIn, signUp, isLoading: authLoading } = useAuth();
+  const location = useLocation();
+  const { user, signIn, signUp, isLoading: authLoading, isAdmin } = useAuth();
   
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
@@ -39,12 +40,20 @@ const Auth = () => {
   const [signupFullName, setSignupFullName] = useState('');
   const [signupErrors, setSignupErrors] = useState<{ email?: string; password?: string; fullName?: string }>({});
 
+  // Get the intended destination from state (if redirected from protected route)
+  const from = (location.state as { from?: { pathname: string } })?.from?.pathname;
+
   // Redirect if already logged in
   useEffect(() => {
     if (user && !authLoading) {
-      navigate('/');
+      // Redirect admin users to admin dashboard, others to home or intended destination
+      if (isAdmin) {
+        navigate(from?.startsWith('/admin') ? from : '/admin');
+      } else {
+        navigate(from || '/');
+      }
     }
-  }, [user, authLoading, navigate]);
+  }, [user, authLoading, isAdmin, navigate, from]);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -76,7 +85,7 @@ const Auth = () => {
     }
     
     toast.success('Welcome back!');
-    navigate('/');
+    // Navigation will be handled by useEffect when isAdmin state updates
   };
 
   const handleSignup = async (e: React.FormEvent) => {
@@ -114,7 +123,7 @@ const Auth = () => {
     }
     
     toast.success('Account created successfully!');
-    navigate('/');
+    // Navigation will be handled by useEffect when auth state updates
   };
 
   if (authLoading) {
