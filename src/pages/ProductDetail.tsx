@@ -8,8 +8,9 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
+import { Skeleton } from "@/components/ui/skeleton";
 import { Heart, ShoppingCart, Shield, Truck, Package, Star, Minus, Plus } from "lucide-react";
-import { getProductById, getProductsByCategory } from "@/data/products";
+import { useProduct, useRelatedProducts } from "@/hooks/useProducts";
 import { useCart } from "@/contexts/CartContext";
 import { useWishlist } from "@/contexts/WishlistContext";
 
@@ -19,9 +20,33 @@ const ProductDetail = () => {
   const { addToWishlist, isInWishlist, removeFromWishlist } = useWishlist();
   const [quantity, setQuantity] = useState(1);
   
-  const product = id ? getProductById(id) : null;
+  const { data: product, isLoading } = useProduct(id || "");
+  const { data: relatedProducts = [] } = useRelatedProducts(product?.category || "", product?.id || "");
+  
   const isWishlisted = product ? isInWishlist(product.id) : false;
-  const relatedProducts = product ? getProductsByCategory(product.category).filter(p => p.id !== product.id).slice(0, 4) : [];
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen">
+        <Header />
+        <main className="pt-32 pb-20">
+          <div className="container mx-auto px-4">
+            <div className="grid lg:grid-cols-2 gap-12">
+              <Skeleton className="aspect-square w-full rounded-lg" />
+              <div className="space-y-6">
+                <Skeleton className="h-8 w-24" />
+                <Skeleton className="h-12 w-3/4" />
+                <Skeleton className="h-6 w-1/3" />
+                <Skeleton className="h-10 w-1/4" />
+                <Skeleton className="h-24 w-full" />
+              </div>
+            </div>
+          </div>
+        </main>
+        <Footer />
+      </div>
+    );
+  }
 
   if (!product) {
     return (
@@ -47,7 +72,7 @@ const ProductDetail = () => {
       id: product.id,
       name: product.name,
       price: product.price,
-      image: product.images[0],
+      image: product.images[0] || "🎁",
       category: product.category,
     }, quantity);
   };
@@ -62,7 +87,7 @@ const ProductDetail = () => {
         id: product.id,
         name: product.name,
         price: product.price,
-        image: product.images[0],
+        image: product.images[0] || "🎁",
         category: product.category,
       });
     }
@@ -73,8 +98,10 @@ const ProductDetail = () => {
   };
 
   const increaseQuantity = () => {
-    setQuantity(quantity + 1);
+    if (quantity < product.quantity) setQuantity(quantity + 1);
   };
+
+  const isOutOfStock = product.quantity === 0;
 
   return (
     <div className="min-h-screen">
@@ -117,7 +144,7 @@ const ProductDetail = () => {
                       <Star
                         key={i}
                         className={`h-5 w-5 ${
-                          i < Math.floor(product.rating)
+                          i < Math.floor(product.rating || 0)
                             ? "fill-accent text-accent"
                             : "text-muted"
                         }`}
@@ -125,17 +152,33 @@ const ProductDetail = () => {
                     ))}
                   </div>
                   <span className="text-sm text-muted-foreground">
-                    {product.rating} ({product.reviewCount} reviews)
+                    {product.rating || 0} ({product.review_count || 0} reviews)
                   </span>
                 </div>
 
-                <p className="text-3xl font-semibold text-primary mb-6">
-                  KES {product.price.toLocaleString()}
-                </p>
+                <div className="flex items-center gap-4 mb-6">
+                  <p className="text-3xl font-semibold text-primary">
+                    KES {product.price.toLocaleString()}
+                  </p>
+                  {product.original_price && (
+                    <p className="text-xl text-muted-foreground line-through">
+                      KES {product.original_price.toLocaleString()}
+                    </p>
+                  )}
+                </div>
+
+                {/* Stock Status */}
+                {isOutOfStock ? (
+                  <Badge variant="destructive" className="mb-4">Out of Stock</Badge>
+                ) : product.quantity <= 5 ? (
+                  <Badge variant="secondary" className="mb-4 bg-amber-500/20 text-amber-600">
+                    Only {product.quantity} left in stock
+                  </Badge>
+                ) : null}
               </div>
 
               <p className="text-foreground/90 leading-relaxed">
-                {product.longDescription}
+                {product.long_description || product.description}
               </p>
 
               {/* Quantity Selector */}
@@ -147,6 +190,7 @@ const ProductDetail = () => {
                       variant="outline"
                       size="icon"
                       onClick={decreaseQuantity}
+                      disabled={quantity <= 1 || isOutOfStock}
                       className="h-10 w-10 rounded-full"
                     >
                       <Minus className="h-4 w-4" />
@@ -156,6 +200,7 @@ const ProductDetail = () => {
                       variant="outline"
                       size="icon"
                       onClick={increaseQuantity}
+                      disabled={quantity >= product.quantity || isOutOfStock}
                       className="h-10 w-10 rounded-full"
                     >
                       <Plus className="h-4 w-4" />
@@ -167,10 +212,11 @@ const ProductDetail = () => {
                 <div className="flex gap-4">
                   <Button
                     onClick={handleAddToCart}
-                    className="flex-1 bg-primary hover:bg-primary/90 rounded-full py-6 shadow-glow-button hover:scale-105 transition-all duration-300"
+                    disabled={isOutOfStock}
+                    className="flex-1 bg-primary hover:bg-primary/90 rounded-full py-6 shadow-glow-button hover:scale-105 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     <ShoppingCart className="h-5 w-5 mr-2" />
-                    Add to Cart
+                    {isOutOfStock ? "Out of Stock" : "Add to Cart"}
                   </Button>
                   <Button
                     onClick={handleToggleWishlist}
@@ -215,12 +261,12 @@ const ProductDetail = () => {
                 <CardContent className="p-8">
                   <h3 className="font-serif text-2xl mb-6">About This Product</h3>
                   <p className="text-foreground/90 leading-relaxed mb-6">
-                    {product.longDescription}
+                    {product.long_description || product.description}
                   </p>
-                  {product.careInstructions && (
+                  {product.care_instructions && (
                     <div className="mt-6 pt-6 border-t border-border/50">
                       <h4 className="font-semibold mb-3 text-foreground">Care Instructions</h4>
-                      <p className="text-foreground/90">{product.careInstructions}</p>
+                      <p className="text-foreground/90">{product.care_instructions}</p>
                     </div>
                   )}
                 </CardContent>
@@ -251,7 +297,7 @@ const ProductDetail = () => {
           </Tabs>
 
           {/* Reviews Section */}
-          <ProductReviews productName={product.name} totalReviews={product.reviewCount} rating={product.rating} />
+          <ProductReviews productName={product.name} totalReviews={product.review_count || 0} rating={product.rating || 0} />
         </div>
 
         {/* Related Products */}
@@ -268,11 +314,10 @@ const ProductDetail = () => {
                       <div className="relative">
                         <Link to={`/product/${relatedProduct.id}`}>
                           <div className="aspect-square bg-muted/30 flex items-center justify-center text-6xl cursor-pointer group-hover:scale-110 transition-all duration-500">
-                            {relatedProduct.images[0]}
+                            {relatedProduct.images[0] || "🎁"}
                           </div>
                         </Link>
                         
-                        {/* Wishlist Heart Overlay */}
                         <Button 
                           variant="ghost" 
                           size="icon" 
@@ -288,7 +333,7 @@ const ProductDetail = () => {
                                 id: relatedProduct.id,
                                 name: relatedProduct.name,
                                 price: relatedProduct.price,
-                                image: relatedProduct.images[0],
+                                image: relatedProduct.images[0] || "🎁",
                                 category: relatedProduct.category,
                               });
                             }
@@ -309,14 +354,14 @@ const ProductDetail = () => {
                             <Star
                               key={i}
                               className={`h-3 w-3 ${
-                                i < Math.floor(relatedProduct.rating)
+                                i < Math.floor(relatedProduct.rating || 0)
                                   ? "fill-primary text-primary"
                                   : "text-muted-foreground/30"
                               }`}
                             />
                           ))}
                           <span className="text-xs text-muted-foreground ml-1">
-                            ({relatedProduct.reviewCount})
+                            ({relatedProduct.review_count || 0})
                           </span>
                         </div>
                         <p className="text-xl font-serif text-primary">

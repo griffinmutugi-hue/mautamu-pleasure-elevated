@@ -30,6 +30,7 @@ const productSchema = z.object({
   material: z.string().max(200).nullable(),
   size: z.string().max(200).nullable(),
   care_instructions: z.string().max(500).nullable(),
+  quantity: z.number().min(0, 'Quantity must be 0 or more'),
   is_bestseller: z.boolean(),
   is_new: z.boolean(),
   is_active: z.boolean(),
@@ -69,6 +70,7 @@ const ProductForm = () => {
     material: '',
     size: '',
     care_instructions: '',
+    quantity: 0,
     is_bestseller: false,
     is_new: false,
     is_active: true,
@@ -106,6 +108,7 @@ const ProductForm = () => {
           material: data.material || '',
           size: data.size || '',
           care_instructions: data.care_instructions || '',
+          quantity: data.quantity || 0,
           is_bestseller: data.is_bestseller || false,
           is_new: data.is_new || false,
           is_active: data.is_active ?? true,
@@ -149,6 +152,7 @@ const ProductForm = () => {
         material: formData.material || null,
         size: formData.size || null,
         care_instructions: formData.care_instructions || null,
+        quantity: formData.quantity,
         is_bestseller: formData.is_bestseller,
         is_new: formData.is_new,
         is_active: formData.is_active,
@@ -283,7 +287,7 @@ const ProductForm = () => {
               {errors.name && <p className="text-sm text-destructive">{errors.name}</p>}
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="price" className="text-foreground">Price (KSh)</Label>
                 <Input
@@ -307,6 +311,20 @@ const ProductForm = () => {
                   placeholder="For showing discount"
                   className="bg-muted/50 border-border/50 text-foreground placeholder:text-muted-foreground"
                 />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="quantity" className="text-foreground">Quantity in Stock</Label>
+                <Input
+                  id="quantity"
+                  type="number"
+                  min="0"
+                  value={formData.quantity}
+                  onChange={(e) => setFormData({ ...formData, quantity: parseInt(e.target.value) || 0 })}
+                  placeholder="0"
+                  className="bg-muted/50 border-border/50 text-foreground placeholder:text-muted-foreground"
+                />
+                {errors.quantity && <p className="text-sm text-destructive">{errors.quantity}</p>}
               </div>
             </div>
 

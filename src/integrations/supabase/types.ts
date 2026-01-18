@@ -30,6 +30,7 @@ export type Database = {
           name: string
           original_price: number | null
           price: number
+          quantity: number
           rating: number | null
           review_count: number | null
           size: string | null
@@ -50,6 +51,7 @@ export type Database = {
           name: string
           original_price?: number | null
           price: number
+          quantity?: number
           rating?: number | null
           review_count?: number | null
           size?: string | null
@@ -70,6 +72,7 @@ export type Database = {
           name?: string
           original_price?: number | null
           price?: number
+          quantity?: number
           rating?: number | null
           review_count?: number | null
           size?: string | null
