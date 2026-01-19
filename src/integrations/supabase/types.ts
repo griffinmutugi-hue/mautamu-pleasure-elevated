@@ -140,6 +140,36 @@ export type Database = {
         }
         Relationships: []
       }
+      site_content: {
+        Row: {
+          content_key: string
+          content_value: string
+          created_at: string | null
+          id: string
+          page: string
+          section: string
+          updated_at: string | null
+        }
+        Insert: {
+          content_key: string
+          content_value: string
+          created_at?: string | null
+          id?: string
+          page: string
+          section: string
+          updated_at?: string | null
+        }
+        Update: {
+          content_key?: string
+          content_value?: string
+          created_at?: string | null
+          id?: string
+          page?: string
+          section?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       user_roles: {
         Row: {
           created_at: string | null
