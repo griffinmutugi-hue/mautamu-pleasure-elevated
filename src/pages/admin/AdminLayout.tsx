@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { 
   LayoutDashboard, 
   Package, 
+  Layers,
   LogOut, 
   Home,
   Menu,
@@ -26,6 +27,7 @@ const AdminLayout = () => {
   const navItems = [
     { href: '/admin', icon: LayoutDashboard, label: 'Dashboard', exact: true },
     { href: '/admin/products', icon: Package, label: 'Products' },
+    { href: '/admin/collections', icon: Layers, label: 'Collections' },
   ];
 
   const isActive = (href: string, exact = false) => {

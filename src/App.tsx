@@ -31,6 +31,8 @@ import AdminLayout from "./pages/admin/AdminLayout";
 import Dashboard from "./pages/admin/Dashboard";
 import ProductsList from "./pages/admin/ProductsList";
 import ProductForm from "./pages/admin/ProductForm";
+import CollectionsList from "./pages/admin/CollectionsList";
+import CollectionForm from "./pages/admin/CollectionForm";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -76,6 +78,9 @@ const App = () => (
                   <Route path="products" element={<ProductsList />} />
                   <Route path="products/new" element={<ProductForm />} />
                   <Route path="products/:id" element={<ProductForm />} />
+                  <Route path="collections" element={<CollectionsList />} />
+                  <Route path="collections/new" element={<CollectionForm />} />
+                  <Route path="collections/:id" element={<CollectionForm />} />
                 </Route>
                 
                 {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
