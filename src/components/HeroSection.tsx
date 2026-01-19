@@ -1,7 +1,16 @@
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
+import { useSectionContent } from "@/hooks/useSiteContent";
 
 const HeroSection = () => {
+  const { data: heroContent } = useSectionContent("home", "hero");
+
+  // Use database content with fallbacks
+  const title = heroContent?.title || "Discover Your Desires";
+  const subtitle = heroContent?.subtitle || "Premium intimate products delivered discreetly to your door. Explore our curated collection for every desire.";
+  const ctaPrimary = heroContent?.cta_primary || "Shop Collections";
+  const ctaSecondary = heroContent?.cta_secondary || "Best Sellers";
+
   return (
     <section className="relative min-h-[90vh] flex items-center justify-center overflow-hidden">
       {/* Background gradient overlay */}
@@ -15,12 +24,17 @@ const HeroSection = () => {
       <div className="container mx-auto px-4 z-10 text-center">
         <div className="max-w-4xl mx-auto space-y-8">
           <h1 className="text-5xl md:text-7xl lg:text-8xl font-serif leading-tight animate-fade-in-up">
-            The Pleasure You{" "}
-            <span className="text-gradient">Deserve</span>
+            {title.split(' ').map((word, i, arr) => 
+              i === arr.length - 1 ? (
+                <span key={i} className="text-gradient">{word}</span>
+              ) : (
+                <span key={i}>{word} </span>
+              )
+            )}
           </h1>
           
           <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto animate-fade-in-up" style={{ animationDelay: "0.2s" }}>
-            For the woman who knows what she wants — and isn't afraid to explore it.
+            {subtitle}
           </p>
 
           <div className="flex flex-col sm:flex-row gap-4 justify-center items-center pt-8 animate-fade-in-up" style={{ animationDelay: "0.4s" }}>
@@ -29,7 +43,7 @@ const HeroSection = () => {
                 size="lg" 
                 className="bg-primary hover:bg-primary/90 text-primary-foreground px-8 py-6 text-lg rounded-full shadow-glow-button hover:scale-105 transition-all duration-300"
               >
-                Explore Collections
+                {ctaPrimary}
               </Button>
             </Link>
             <Link to="/best-sellers">
@@ -38,7 +52,7 @@ const HeroSection = () => {
                 variant="outline" 
                 className="border-primary text-primary hover:bg-primary hover:text-primary-foreground px-8 py-6 text-lg rounded-full transition-all duration-300 hover:shadow-soft"
               >
-                View Best Sellers
+                {ctaSecondary}
               </Button>
             </Link>
           </div>

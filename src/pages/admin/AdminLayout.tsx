@@ -5,6 +5,7 @@ import {
   LayoutDashboard, 
   Package, 
   Layers,
+  FileText,
   LogOut, 
   Home,
   Menu,
@@ -28,6 +29,7 @@ const AdminLayout = () => {
     { href: '/admin', icon: LayoutDashboard, label: 'Dashboard', exact: true },
     { href: '/admin/products', icon: Package, label: 'Products' },
     { href: '/admin/collections', icon: Layers, label: 'Collections' },
+    { href: '/admin/content', icon: FileText, label: 'Content' },
   ];
 
   const isActive = (href: string, exact = false) => {
