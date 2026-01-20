@@ -34,6 +34,7 @@ import ProductForm from "./pages/admin/ProductForm";
 import CollectionsList from "./pages/admin/CollectionsList";
 import CollectionForm from "./pages/admin/CollectionForm";
 import ContentEditor from "./pages/admin/ContentEditor";
+import OrdersList from "./pages/admin/OrdersList";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -83,6 +84,7 @@ const App = () => (
                   <Route path="collections/new" element={<CollectionForm />} />
                   <Route path="collections/:id" element={<CollectionForm />} />
                   <Route path="content" element={<ContentEditor />} />
+                  <Route path="orders" element={<OrdersList />} />
                 </Route>
                 
                 {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}

@@ -15,8 +15,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { ArrowLeft, Loader2, Save, Plus, X } from 'lucide-react';
+import { ArrowLeft, Loader2, Save } from 'lucide-react';
 import { toast } from 'sonner';
+import ImageUpload from '@/components/ImageUpload';
 
 const productSchema = z.object({
   id: z.string().min(1, 'Product ID is required').max(50, 'ID too long'),
@@ -75,8 +76,6 @@ const ProductForm = () => {
     is_new: false,
     is_active: true,
   });
-
-  const [newImage, setNewImage] = useState('');
 
   useEffect(() => {
     if (isEditing && id) {
@@ -190,20 +189,6 @@ const ProductForm = () => {
     } finally {
       setIsSaving(false);
     }
-  };
-
-  const addImage = () => {
-    if (newImage.trim()) {
-      setFormData({ ...formData, images: [...formData.images, newImage.trim()] });
-      setNewImage('');
-    }
-  };
-
-  const removeImage = (index: number) => {
-    setFormData({
-      ...formData,
-      images: formData.images.filter((_, i) => i !== index),
-    });
   };
 
   if (isLoading) {
@@ -358,41 +343,13 @@ const ProductForm = () => {
         {/* Images */}
         <Card className="bg-card/80 border-border/50 backdrop-blur-sm">
           <CardHeader>
-            <CardTitle className="text-foreground">Images</CardTitle>
+            <CardTitle className="text-foreground">Product Images</CardTitle>
           </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="flex gap-2">
-              <Input
-                value={newImage}
-                onChange={(e) => setNewImage(e.target.value)}
-                placeholder="Enter image URL or emoji"
-                className="bg-muted/50 border-border/50 text-foreground placeholder:text-muted-foreground"
-                onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), addImage())}
-              />
-              <Button type="button" onClick={addImage} variant="outline" className="border-border/50">
-                <Plus className="h-4 w-4" />
-              </Button>
-            </div>
-
-            {formData.images.length > 0 && (
-              <div className="flex flex-wrap gap-2">
-                {formData.images.map((img, index) => (
-                  <div
-                    key={index}
-                    className="flex items-center gap-2 bg-muted/50 px-3 py-2 rounded-lg border border-border/50"
-                  >
-                    <span className="text-foreground text-sm truncate max-w-[150px]">{img}</span>
-                    <button
-                      type="button"
-                      onClick={() => removeImage(index)}
-                      className="text-muted-foreground hover:text-destructive transition-colors"
-                    >
-                      <X className="h-4 w-4" />
-                    </button>
-                  </div>
-                ))}
-              </div>
-            )}
+          <CardContent>
+            <ImageUpload
+              images={formData.images}
+              onImagesChange={(images) => setFormData({ ...formData, images })}
+            />
           </CardContent>
         </Card>
 

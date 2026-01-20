@@ -9,10 +9,12 @@ import { useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { useEffect } from "react";
-import { MessageCircle } from "lucide-react";
+import { useEffect, useState } from "react";
+import { MessageCircle, Loader2 } from "lucide-react";
+import { useCreateOrder } from "@/hooks/useOrders";
+import { toast } from "sonner";
 
-const WHATSAPP_NUMBER = "254794043792"; // Replace with actual WhatsApp number
+const WHATSAPP_NUMBER = "254794043792";
 
 const checkoutSchema = z.object({
   fullName: z.string().trim().min(2, "Name must be at least 2 characters").max(100, "Name must be less than 100 characters"),
@@ -26,8 +28,10 @@ type CheckoutFormData = z.infer<typeof checkoutSchema>;
 const CHECKOUT_STORAGE_KEY = "mautamu_checkout_details";
 
 const Checkout = () => {
-  const { items, subtotal } = useCart();
+  const { items, subtotal, clearCart } = useCart();
   const navigate = useNavigate();
+  const createOrder = useCreateOrder();
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Load saved checkout details from localStorage
   const getSavedDetails = (): Partial<CheckoutFormData> => {
@@ -106,12 +110,44 @@ Total: KES ${total.toLocaleString()}
 Please confirm availability.`;
   };
 
-  const onSubmit = (data: CheckoutFormData) => {
-    const message = encodeURIComponent(generateWhatsAppMessage(data));
-    const whatsappUrl = `https://wa.me/254794043792?text=${message}`;
+  const onSubmit = async (data: CheckoutFormData) => {
+    setIsSubmitting(true);
+    
+    try {
+      // Save order to database
+      await createOrder.mutateAsync({
+        customer_name: data.fullName,
+        customer_phone: data.phone,
+        delivery_location: data.location,
+        delivery_address: data.address,
+        subtotal,
+        shipping,
+        total,
+        items: items.map((item) => ({
+          product_id: item.id,
+          product_name: item.name,
+          product_image: item.image,
+          quantity: item.quantity,
+          price: item.price,
+        })),
+      });
 
-    // Opening immediately on user action prevents popup blocking
-    window.open(whatsappUrl, "_blank");
+      // Clear cart after successful order
+      clearCart();
+      
+      // Open WhatsApp
+      const message = encodeURIComponent(generateWhatsAppMessage(data));
+      const whatsappUrl = `https://wa.me/${WHATSAPP_NUMBER}?text=${message}`;
+      window.open(whatsappUrl, "_blank");
+
+      toast.success("Order placed successfully!");
+      navigate("/");
+    } catch (error) {
+      console.error("Order error:", error);
+      toast.error("Failed to place order. Please try again.");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -196,8 +232,12 @@ Please confirm availability.`;
                     <div className="space-y-3 max-h-64 overflow-y-auto">
                       {items.map((item) => (
                         <div key={item.id} className="flex gap-3 pb-3 border-b border-border/50">
-                          <div className="w-16 h-16 bg-muted/30 rounded flex items-center justify-center text-2xl">
-                            {item.image}
+                          <div className="w-16 h-16 bg-muted/30 rounded flex items-center justify-center overflow-hidden">
+                            {item.image?.startsWith('http') ? (
+                              <img src={item.image} alt={item.name} className="w-full h-full object-cover" />
+                            ) : (
+                              <span className="text-2xl">{item.image}</span>
+                            )}
                           </div>
                           <div className="flex-1">
                             <p className="font-semibold text-sm">{item.name}</p>
@@ -230,11 +270,15 @@ Please confirm availability.`;
 
                     <Button 
                       type="submit"
-                      disabled={!isValid}
+                      disabled={!isValid || isSubmitting}
                       className="w-full bg-[#25D366] hover:bg-[#128C7E] text-white rounded-full py-6 text-lg flex items-center justify-center gap-2"
                     >
-                      <MessageCircle className="w-5 h-5" />
-                      Order on WhatsApp
+                      {isSubmitting ? (
+                        <Loader2 className="w-5 h-5 animate-spin" />
+                      ) : (
+                        <MessageCircle className="w-5 h-5" />
+                      )}
+                      {isSubmitting ? "Placing Order..." : "Order on WhatsApp"}
                     </Button>
 
                     <div className="space-y-2 pt-4">
