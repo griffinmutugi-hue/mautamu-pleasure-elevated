@@ -6,6 +6,7 @@ import {
   Package, 
   Layers,
   FileText,
+  ShoppingCart,
   LogOut, 
   Home,
   Menu,
@@ -27,6 +28,7 @@ const AdminLayout = () => {
 
   const navItems = [
     { href: '/admin', icon: LayoutDashboard, label: 'Dashboard', exact: true },
+    { href: '/admin/orders', icon: ShoppingCart, label: 'Orders' },
     { href: '/admin/products', icon: Package, label: 'Products' },
     { href: '/admin/collections', icon: Layers, label: 'Collections' },
     { href: '/admin/content', icon: FileText, label: 'Content' },
