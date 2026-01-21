@@ -3,53 +3,21 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Star, ShoppingCart } from "lucide-react";
-import { getProductsByCategory } from "@/data/products";
+import { Star, ShoppingCart, Loader2 } from "lucide-react";
 import { useState } from "react";
 import { useCart } from "@/contexts/CartContext";
-
-const collectionInfo: Record<string, { title: string; description: string }> = {
-  vibrators: {
-    title: "Vibrators",
-    description: "Powerful pleasure devices designed to awaken every sensation"
-  },
-  dildos: {
-    title: "Dildos",
-    description: "Classic satisfaction in premium materials and luxurious designs"
-  },
-  plugs: {
-    title: "Plugs",
-    description: "Explore new depths of pleasure with our curated selection"
-  },
-  "bondage-kits": {
-    title: "Bondage Kits",
-    description: "Surrender to desire with our premium restraint collections"
-  },
-  "roses-tools": {
-    title: "Roses & Tools",
-    description: "Delicate pleasure tools and viral sensations"
-  },
-  "couple-play": {
-    title: "Couple Play",
-    description: "Share intimate moments and deepen your connection"
-  },
-  "beginner-essentials": {
-    title: "Beginner Essentials",
-    description: "Start your pleasure journey with confidence and care"
-  },
-  luxury: {
-    title: "Luxury Line",
-    description: "Indulge in the finest pleasure products crafted for discerning tastes"
-  }
-};
+import { useProductsByCategory } from "@/hooks/useProducts";
+import { useCollectionBySlug } from "@/hooks/useCollections";
 
 const CollectionPage = () => {
   const { slug } = useParams<{ slug: string }>();
   const { addToCart } = useCart();
   const [sortBy, setSortBy] = useState<"popularity" | "price-low" | "price-high" | "new">("popularity");
   
-  const info = slug ? collectionInfo[slug] : null;
-  const products = slug ? getProductsByCategory(slug) : [];
+  const { data: collection, isLoading: collectionLoading } = useCollectionBySlug(slug || "");
+  const { data: products = [], isLoading: productsLoading } = useProductsByCategory(slug || "");
+
+  const isLoading = collectionLoading || productsLoading;
 
   const sortedProducts = [...products].sort((a, b) => {
     switch (sortBy) {
@@ -58,15 +26,29 @@ const CollectionPage = () => {
       case "price-high":
         return b.price - a.price;
       case "popularity":
-        return b.reviewCount - a.reviewCount;
+        return b.review_count - a.review_count;
       case "new":
-        return 0;
+        return new Date(b.created_at || 0).getTime() - new Date(a.created_at || 0).getTime();
       default:
         return 0;
     }
   });
 
-  if (!info) {
+  if (isLoading) {
+    return (
+      <div className="min-h-screen">
+        <Header />
+        <main className="pt-20 py-20">
+          <div className="container mx-auto px-4 flex items-center justify-center">
+            <Loader2 className="h-8 w-8 animate-spin text-primary" />
+          </div>
+        </main>
+        <Footer />
+      </div>
+    );
+  }
+
+  if (!collection) {
     return (
       <div className="min-h-screen">
         <Header />
@@ -92,11 +74,14 @@ const CollectionPage = () => {
           <div className="container mx-auto px-4">
             <div className="text-center max-w-3xl mx-auto">
               <h1 className="text-4xl md:text-6xl font-serif mb-4">
-                <span className="text-gradient">{info.title}</span>
+                {collection.emoji && <span className="mr-3">{collection.emoji}</span>}
+                <span className="text-gradient">{collection.name}</span>
               </h1>
-              <p className="text-lg text-muted-foreground">
-                {info.description}
-              </p>
+              {collection.description && (
+                <p className="text-lg text-muted-foreground">
+                  {collection.description}
+                </p>
+              )}
             </div>
           </div>
         </section>
@@ -128,79 +113,102 @@ const CollectionPage = () => {
         {/* Products Grid */}
         <section className="py-12">
           <div className="container mx-auto px-4">
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-              {sortedProducts.map((product) => (
-                <Card key={product.id} className="group bg-gradient-card border-border/50 hover:border-primary/50 transition-smooth overflow-hidden">
-                  <CardContent className="p-0">
-                    {/* Product Image */}
-                    <Link to={`/product/${product.id}`}>
-                      <div className="aspect-square bg-muted/30 flex items-center justify-center text-6xl cursor-pointer group-hover:scale-105 transition-smooth">
-                        {product.images[0]}
-                      </div>
-                    </Link>
-
-                    {/* Product Info */}
-                    <div className="p-4 space-y-3">
+            {sortedProducts.length === 0 ? (
+              <div className="text-center py-12">
+                <p className="text-muted-foreground text-lg">No products in this collection yet.</p>
+                <Link to="/collections" className="mt-4 inline-block">
+                  <Button variant="outline">Browse Other Collections</Button>
+                </Link>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                {sortedProducts.map((product) => (
+                  <Card key={product.id} className="group bg-gradient-card border-border/50 hover:border-primary/50 transition-smooth overflow-hidden">
+                    <CardContent className="p-0">
+                      {/* Product Image */}
                       <Link to={`/product/${product.id}`}>
-                        <h3 className="font-serif text-lg text-foreground group-hover:text-primary transition-smooth">
-                          {product.name}
-                        </h3>
-                      </Link>
-                      
-                      <p className="text-sm text-muted-foreground line-clamp-2">
-                        {product.description}
-                      </p>
-
-                      {/* Rating */}
-                      <div className="flex items-center gap-2">
-                        <div className="flex">
-                          {[...Array(5)].map((_, i) => (
-                            <Star
-                              key={i}
-                              className={`h-4 w-4 ${
-                                i < Math.floor(product.rating)
-                                  ? "fill-primary text-primary"
-                                  : "text-muted-foreground/30"
-                              }`}
+                        <div className="aspect-square bg-muted/30 flex items-center justify-center cursor-pointer group-hover:scale-105 transition-smooth overflow-hidden">
+                          {product.images && product.images.length > 0 ? (
+                            <img 
+                              src={product.images[0]} 
+                              alt={product.name}
+                              className="w-full h-full object-cover"
                             />
-                          ))}
+                          ) : (
+                            <span className="text-6xl">📦</span>
+                          )}
                         </div>
-                        <span className="text-xs text-muted-foreground">
-                          ({product.reviewCount})
-                        </span>
-                      </div>
+                      </Link>
 
-                      {/* Price */}
-                      <p className="text-2xl font-serif text-primary">
-                        KES {product.price.toLocaleString()}
-                      </p>
-
-                      {/* Actions */}
-                      <div className="flex gap-2 pt-2">
-                        <Link to={`/product/${product.id}`} className="flex-1">
-                          <Button variant="outline" className="w-full">
-                            View Product
-                          </Button>
+                      {/* Product Info */}
+                      <div className="p-4 space-y-3">
+                        <Link to={`/product/${product.id}`}>
+                          <h3 className="font-serif text-lg text-foreground group-hover:text-primary transition-smooth">
+                            {product.name}
+                          </h3>
                         </Link>
-                        <Button 
-                          className="flex-1"
-                          onClick={() => addToCart({
-                            id: product.id,
-                            name: product.name,
-                            price: product.price,
-                            image: product.images[0],
-                            category: product.category,
-                          })}
-                        >
-                          <ShoppingCart className="h-4 w-4 mr-2" />
-                          Add to Cart
-                        </Button>
+                        
+                        <p className="text-sm text-muted-foreground line-clamp-2">
+                          {product.description}
+                        </p>
+
+                        {/* Rating */}
+                        <div className="flex items-center gap-2">
+                          <div className="flex">
+                            {[...Array(5)].map((_, i) => (
+                              <Star
+                                key={i}
+                                className={`h-4 w-4 ${
+                                  i < Math.floor(product.rating)
+                                    ? "fill-primary text-primary"
+                                    : "text-muted-foreground/30"
+                                }`}
+                              />
+                            ))}
+                          </div>
+                          <span className="text-xs text-muted-foreground">
+                            ({product.review_count})
+                          </span>
+                        </div>
+
+                        {/* Price */}
+                        <p className="text-2xl font-serif text-primary">
+                          KES {product.price.toLocaleString()}
+                        </p>
+
+                        {/* Stock Status */}
+                        {product.quantity === 0 && (
+                          <p className="text-sm text-destructive font-medium">Out of Stock</p>
+                        )}
+
+                        {/* Actions */}
+                        <div className="flex gap-2 pt-2">
+                          <Link to={`/product/${product.id}`} className="flex-1">
+                            <Button variant="outline" className="w-full">
+                              View Product
+                            </Button>
+                          </Link>
+                          <Button 
+                            className="flex-1"
+                            disabled={product.quantity === 0}
+                            onClick={() => addToCart({
+                              id: product.id,
+                              name: product.name,
+                              price: product.price,
+                              image: product.images?.[0] || "",
+                              category: product.category,
+                            })}
+                          >
+                            <ShoppingCart className="h-4 w-4 mr-2" />
+                            Add to Cart
+                          </Button>
+                        </div>
                       </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            )}
           </div>
         </section>
       </main>
