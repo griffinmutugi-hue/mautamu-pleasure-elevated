@@ -18,6 +18,7 @@ import {
 import { ArrowLeft, Loader2, Save } from 'lucide-react';
 import { toast } from 'sonner';
 import ImageUpload from '@/components/ImageUpload';
+import { useCollections } from '@/hooks/useCollections';
 
 const productSchema = z.object({
   id: z.string().min(1, 'Product ID is required').max(50, 'ID too long'),
@@ -39,21 +40,13 @@ const productSchema = z.object({
 
 type ProductFormData = z.infer<typeof productSchema>;
 
-const categories = [
-  { value: 'vibrators', label: 'Vibrators' },
-  { value: 'dildos', label: 'Dildos' },
-  { value: 'plugs', label: 'Plugs' },
-  { value: 'bondage-kits', label: 'Bondage Kits' },
-  { value: 'roses-tools', label: 'Roses & Tools' },
-  { value: 'couple-play', label: 'Couple Play' },
-  { value: 'beginner-essentials', label: 'Beginner Essentials' },
-  { value: 'luxury', label: 'Luxury' },
-];
-
 const ProductForm = () => {
   const navigate = useNavigate();
   const { id } = useParams();
   const isEditing = Boolean(id && id !== 'new');
+
+  // Fetch collections for category dropdown
+  const { data: collections = [], isLoading: collectionsLoading } = useCollections();
 
   const [isLoading, setIsLoading] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
@@ -244,14 +237,15 @@ const ProductForm = () => {
                 <Select
                   value={formData.category}
                   onValueChange={(value) => setFormData({ ...formData, category: value })}
+                  disabled={collectionsLoading}
                 >
                   <SelectTrigger className="bg-muted/50 border-border/50 text-foreground">
-                    <SelectValue placeholder="Select category" />
+                    <SelectValue placeholder={collectionsLoading ? "Loading..." : "Select category"} />
                   </SelectTrigger>
                   <SelectContent className="bg-card border-border/50">
-                    {categories.map((cat) => (
-                      <SelectItem key={cat.value} value={cat.value}>
-                        {cat.label}
+                    {collections.map((collection) => (
+                      <SelectItem key={collection.slug} value={collection.slug}>
+                        {collection.emoji && `${collection.emoji} `}{collection.name}
                       </SelectItem>
                     ))}
                   </SelectContent>
