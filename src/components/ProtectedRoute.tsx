@@ -8,10 +8,11 @@ interface ProtectedRouteProps {
 }
 
 const ProtectedRoute = ({ children, requireAdmin = false }: ProtectedRouteProps) => {
-  const { user, isLoading, isAdmin } = useAuth();
+  const { user, isLoading, isAdmin, isAdminLoading } = useAuth();
   const location = useLocation();
 
-  if (isLoading) {
+  // Wait for both auth and admin role check to complete
+  if (isLoading || (user && isAdminLoading)) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
         <Loader2 className="h-8 w-8 animate-spin text-primary" />
