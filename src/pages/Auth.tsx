@@ -24,7 +24,7 @@ const signupSchema = z.object({
 const Auth = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const { user, signIn, signUp, isLoading: authLoading, isAdmin } = useAuth();
+  const { user, signIn, signUp, isLoading: authLoading, isAdmin, isAdminLoading } = useAuth();
   
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
@@ -43,9 +43,9 @@ const Auth = () => {
   // Get the intended destination from state (if redirected from protected route)
   const from = (location.state as { from?: { pathname: string } })?.from?.pathname;
 
-  // Redirect if already logged in
+  // Redirect if already logged in - wait for admin check to complete
   useEffect(() => {
-    if (user && !authLoading) {
+    if (user && !authLoading && !isAdminLoading) {
       // Redirect admin users to admin dashboard, others to home or intended destination
       if (isAdmin) {
         navigate(from?.startsWith('/admin') ? from : '/admin');
@@ -53,7 +53,7 @@ const Auth = () => {
         navigate(from || '/');
       }
     }
-  }, [user, authLoading, isAdmin, navigate, from]);
+  }, [user, authLoading, isAdmin, isAdminLoading, navigate, from]);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
