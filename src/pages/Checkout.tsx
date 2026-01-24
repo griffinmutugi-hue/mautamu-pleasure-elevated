@@ -18,7 +18,7 @@ const WHATSAPP_NUMBER = "254794043792";
 
 const checkoutSchema = z.object({
   fullName: z.string().trim().min(2, "Name must be at least 2 characters").max(100, "Name must be less than 100 characters"),
-  phone: z.string().trim().min(10, "Please enter a valid phone number").max(15, "Phone number is too long"),
+  phone: z.string().trim().regex(/^(\+?254|0)7\d{8}$/, "Please enter a valid Kenyan phone number (e.g., 0712345678 or +254712345678)"),
   location: z.string().trim().min(3, "Location must be at least 3 characters").max(100, "Location must be less than 100 characters"),
   address: z.string().trim().min(5, "Address must be at least 5 characters").max(200, "Address must be less than 200 characters"),
 });
